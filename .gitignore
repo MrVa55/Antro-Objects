@@ -1,0 +1,7 @@
+.env
+input_realtime.py
+transcribe_module.py
+transcribe2_module.py
+/__pycache__
+speech.mp3
+temp_audio.wav

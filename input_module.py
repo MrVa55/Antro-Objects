@@ -1,3 +1,9 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
+
+
 import pyaudio
 import webrtcvad
 import numpy as np
@@ -11,7 +17,7 @@ def record_and_transcribe(start_time):
     print(f"Input module starting time: {starting_time} seconds")
 
     # Initialize OpenAI client
-    openai.api_key = "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"
+    openai.api_key = os.getenv('OPENAI.API_KEY')
 
     # Function to save audio
     def save_audio(data, rate, filename='processed_output.wav'):

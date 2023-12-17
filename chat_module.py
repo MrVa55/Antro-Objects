@@ -1,5 +1,9 @@
 from openai import OpenAI
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
 # from playsound import playsound
 
 
@@ -17,7 +21,8 @@ def chat_with_gpt(input_text):
     # Initialize the OpenAI client with API key
     client = OpenAI(
     
-        api_key="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",
+     
+    api_key = os.getenv('OPENAI.API_KEY')
     )
 
     # Get user input

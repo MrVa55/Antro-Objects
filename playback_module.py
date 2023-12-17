@@ -7,7 +7,7 @@ def text_to_speech_and_play(text):
     # Initialize the OpenAI client with API key
     openai = OpenAI(
    
-    api_key="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",
+    api_key="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",
     )
     
     # Specify the path for the output audio file
