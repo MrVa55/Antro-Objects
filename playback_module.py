@@ -1,13 +1,13 @@
 from openai import OpenAI
 import pygame
 from pathlib import Path
-
+from dotenv import load_dotenv
+import os
 
 def text_to_speech_and_play(text):
     # Initialize the OpenAI client with API key
     openai = OpenAI(
-   
-    api_key="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",
+        api_key=os.getenv('OPENAI.API_KEY')
     )
     
     # Specify the path for the output audio file
@@ -15,16 +15,13 @@ def text_to_speech_and_play(text):
 
     # Create a text-to-speech response using the reply content
     response = openai.audio.speech.create(
-    model="tts-1",
-    voice="onyx",
-    input=text  # Use the chat model's reply as the input text
+        model="tts-1",
+        voice="onyx",
+        input=text  # Use the chat model's reply as the input text
     )
 
     # Save the audio stream to a file
     response.stream_to_file(speech_file_path)
-
-    #play the sound
-    #playsound(str(speech_file_path))
 
     # Initialize pygame mixer, Load and play the audio file
     pygame.mixer.init()

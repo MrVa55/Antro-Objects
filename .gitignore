@@ -2,7 +2,10 @@
 input_realtime.py
 transcribe_module.py
 transcribe2_module.py
+inputwhisper_module.py
 __pycache__/
+log_file.log
+output_log.log
 speech.mp3
 processed_output.wav
 temp_audio.wav
