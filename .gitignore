@@ -2,6 +2,7 @@
 input_realtime.py
 transcribe_module.py
 transcribe2_module.py
-/__pycache__
+__pycache__/
 speech.mp3
+processed_output.wav
 temp_audio.wav
