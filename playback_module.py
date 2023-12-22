@@ -1,13 +1,16 @@
 from openai import OpenAI
 import pygame
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def text_to_speech_and_play(text):
+
     # Initialize the OpenAI client with API key
     openai = OpenAI(
-   
-    api_key="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",
+    api_key = os.getenv('OPENAI.API_KEY')
     )
     
     # Specify the path for the output audio file
