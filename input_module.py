@@ -13,7 +13,7 @@ def listen_and_transcribe():
 
             try:
                 print("Listening...")  # Indicate that the system is ready to listen
-                audio = r.listen(source, phrase_time_limit=5)
+                audio = r.listen(source, phrase_time_limit=10)
                 text = r.recognize_google(audio)
                 with open('output_log.log', 'a') as log_file:
                     log_file.write("You said: " + text + "\n")
