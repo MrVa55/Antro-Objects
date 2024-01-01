@@ -3,6 +3,9 @@ import pygame
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import sounddevice
+
+load_dotenv()
 
 def text_to_speech_and_play(text):
     # Initialize the OpenAI client with API key
