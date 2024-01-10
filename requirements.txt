@@ -1,1 +1,7 @@
-speech_recognition
+SpeechRecognition
+python_dotenv
+openai
+pygame
+PyAudio
+sounddevice
+

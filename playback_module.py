@@ -3,9 +3,12 @@ import pygame
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import sounddevice
 import subprocess
 
 load_dotenv()
+
+
 
 def text_to_speech_and_play(text):
     openai = OpenAI(api_key=os.getenv('OPENAI.API_KEY'))
