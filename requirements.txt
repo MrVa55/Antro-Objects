@@ -4,4 +4,4 @@ openai
 pygame
 PyAudio
 sounddevice
-
+rpi_ws281x
