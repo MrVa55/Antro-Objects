@@ -1,7 +1,11 @@
-SpeechRecognition
 python_dotenv
 openai
 pygame
 PyAudio
 sounddevice
-rpi_ws281x
+rpi_ws281xpyaudio
+SpeechRecognition
+--extra-index-url https://download.pytorch.org/whl/cu116
+torch
+numpy
+git+https://github.com/openai/whisper.git
