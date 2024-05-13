@@ -24,6 +24,29 @@ args = parser.parse_args()
 set_logging(args,logger,other="")
 
 
+SAMPLING_RATE = 16000
+
+size = args.model
+language = args.lan
+asr, online = asr_factory(args)
+min_chunk = args.min_chunk_size
+
+# warm up the ASR because the very first transcribe takes more time than the others.
+# Test results in https://github.com/ufal/whisper_streaming/pull/81
+msg = "Whisper is not warmed up. The first chunk processing may take longer."
+if args.warmup_file:
+    if os.path.isfile(args.warmup_file):
+        a = load_audio_chunk(args.warmup_file,0,1)
+        asr.transcribe(a)
+        logger.info("Whisper is warmed up.")
+    else:
+        logger.critical("The warm up file is not available. "+msg)
+        sys.exit(1)
+else:
+    logger.warning(msg)
+
+
+
 # server loop
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
