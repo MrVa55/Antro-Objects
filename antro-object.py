@@ -6,6 +6,9 @@ import os
 import logging
 import numpy as np
 
+import chat_module
+import playback_module
+
 
 logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser()
@@ -59,7 +62,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         logger.info('Connected to client on {}'.format(addr))
         connection = Connection(conn)
         proc = ServerProcessor(connection, online, min_chunk)
-        proc.process()
+        transcription = proc.process()
+        if transcription:
+            print("User:", user_input)
+            character, response = chat_module.chat_with_gpt(transcription)
+            print(f"{character}: {response}")
+            # playback_module.text_to_speech_and_play(response)
         conn.close()
         logger.info('Connection to client closed')
 logger.info('Connection closed, terminating.')

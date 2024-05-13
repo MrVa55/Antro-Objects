@@ -92,6 +92,7 @@ class ServerProcessor:
         msg = self.format_output_transcript(o)
         if msg is not None:
             self.connection.send(msg)
+            
 
     def process(self):
         # handle one client connection
@@ -104,6 +105,7 @@ class ServerProcessor:
             o = online.process_iter()
             try:
                 self.send_result(o)
+                return self.format_output_transcript(o)
             except BrokenPipeError:
                 logger.info("broken pipe -- connection closed?")
                 break
