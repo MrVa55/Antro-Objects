@@ -148,6 +148,7 @@ class ServerProcessor:
             o = online.process_iter()
             try:
                 self.send_result(o)
+                return self.format_output_transcript(o)
             except BrokenPipeError:
                 logger.info("broken pipe -- connection closed?")
                 break
