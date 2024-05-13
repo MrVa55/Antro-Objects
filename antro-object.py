@@ -64,7 +64,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         proc = ServerProcessor(connection, online, min_chunk)
         transcription = proc.process()
         if transcription:
-            print("User:", user_input)
+            print("User:", transcription)
             character, response = chat_module.chat_with_gpt(transcription)
             print(f"{character}: {response}")
             # playback_module.text_to_speech_and_play(response)
