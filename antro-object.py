@@ -137,21 +137,25 @@ class ServerProcessor:
         if msg is not None:
             self.connection.send(msg)
 
-    def process(self):
-        # handle one client connection
-        self.online_asr_proc.init()
+   def process(self):
+    self.online_asr_proc.init()
+    transcription_results = []  # Collects all transcriptions
+    while True:
+        audio_chunk = self.receive_audio_chunk()
+        if audio_chunk is None:
+            break
+        self.online_asr_proc.insert_audio_chunk(audio_chunk)
         while True:
-            a = self.receive_audio_chunk()
-            if a is None:
+            o = self.online_asr_proc.process_iter()
+            if o is None:
                 break
-            self.online_asr_proc.insert_audio_chunk(a)
-            o = online.process_iter()
-            try:
-                self.send_result(o)
-                return self.format_output_transcript(o)
-            except BrokenPipeError:
-                logger.info("broken pipe -- connection closed?")
-                break
+            formatted_transcript = self.format_output_transcript(o)
+            if formatted_transcript:
+                transcription_results.append(formatted_transcript)
+                return " ".join(transcription_results)  # Combine all valid transcriptions
+    except BrokenPipeError:
+        logger.info("broken pipe -- connection closed?")
+        break
 
 
 # server loop
