@@ -5,7 +5,7 @@ import io
 import soundfile
 
 SAMPLING_RATE = 16000
-
+asr, online = asr_factory(args)
 ######### Server objects
 
 class Connection:
