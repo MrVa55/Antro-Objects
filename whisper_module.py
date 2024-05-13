@@ -4,12 +4,9 @@ import socket
 import io
 import soundfile
 
-# setting whisper object by args
-
-
+SAMPLING_RATE = 16000
+asr, online = asr_factory(args)
 ######### Server objects
-
-
 
 class Connection:
     '''it wraps conn object'''
