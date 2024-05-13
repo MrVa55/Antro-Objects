@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from whisper_module import *
+from whisper_online import *
 import sys
 import argparse
 import os
