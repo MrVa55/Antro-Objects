@@ -1,31 +1,39 @@
-import speech_recognition as sr
-import sounddevice
+# input_module.py
+import argparse
+import logging
+import os
 import sys
+from whisper_online import add_shared_args, asr_factory, set_logging, load_audio_chunk
 
-# Initialize recognizer
-r = sr.Recognizer()
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", type=str, default='localhost')
+    parser.add_argument("--port", type=int, default=43007)
+    parser.add_argument("--warmup-file", type=str, dest="warmup_file", help="The path to a speech audio wav file to warm up Whisper.")
+    add_shared_args(parser)
+    return parser.parse_args()
 
-# Function to transcribe speech and log the output
-def listen_and_transcribe():
-    while True:
-        with sr.Microphone() as source:
-            # Adjust for ambient noise and set a shorter listening duration
-            r.adjust_for_ambient_noise(source, duration=1)
+def setup_logger():
+    logger = logging.getLogger(__name__)
+    return logger
 
-            try:
-                print("Listening...")  # Indicate that the system is ready to listen
-                audio = r.listen(source, phrase_time_limit=10)
-                text = r.recognize_google(audio)
-                with open('output_log.log', 'a') as log_file:
-                    log_file.write("You said: " + text + "\n")
-                return text
-            except sr.UnknownValueError:
-                with open('output_log.log', 'a') as log_file:
-                    log_file.write("Google Speech Recognition could not understand audio\n")
-            except sr.RequestError as e:
-                with open('output_log.log', 'a') as log_file:
-                    log_file.write(f"Could not request results from Google Speech Recognition service; {e}\n")
-            except KeyboardInterrupt:
-                # Allow the user to exit the loop with a keyboard interrupt (Ctrl+C)
-                print("Exiting transcription loop.")
-                break
+def warmup_asr(args, logger):
+    msg = "Whisper is not warmed up. The first chunk processing may take longer."
+    if args.warmup_file:
+        if os.path.isfile(args.warmup_file):
+            a = load_audio_chunk(args.warmup_file, 0, 1)
+            asr.transcribe(a)
+            logger.info("Whisper is warmed up.")
+        else:
+            logger.critical("The warm up file is not available. " + msg)
+            sys.exit(1)
+    else:
+        logger.warning(msg)
+
+def init_asr(args):
+    SAMPLING_RATE = 16000
+    size = args.model
+    language = args.lan
+    asr, online = asr_factory(args)
+    min_chunk = args.min_chunk_size
+    return SAMPLING_RATE, asr, online, min_chunk

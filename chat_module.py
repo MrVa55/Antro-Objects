@@ -3,18 +3,41 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
+import json
+import random
+
 load_dotenv()
 
-# Define the initial prompt for the chat model
-messages = [
-    {"role": "system", "content": "You are part of an art installation at Burning Man containing anthropomorphic furniture. You are the vacuum cleaner, which makes everything into an existential issue pondering life as a cleaning device. The audience is adult so you can use a lot of snark. Keep your answers short, like 1 simple sentence"}
-]
+# Load characters from a JSON file
+def load_characters(directory):
+    characters = []
+    directory_path = Path(directory)
+    for file in directory_path.glob('*.json'):
+        with open(file, 'r') as f:
+            characters.append(json.load(f))
+    return characters
+
+
+
+# Define the initial prompt for the chat model with all characters
+def initialize_messages(characters):
+    character_descriptions = []
+    for character in characters:
+        description = f"Charachter name:{character['character']} Characther instructions: {character['instructions']}"
+        character_descriptions.append(description)
+    
+    initial_prompt = ("You manage an art installation at Burning Man containing anthropomorphic furniture. "
+                      "Each time you receive a reply, you must choose a character from the list below and answer as that characther. "
+                      "Preface your answer with the name of the object." 
+                      "It is important, that your responses are brief, succinct  and natural like a line in a theater manuscript. It should be speech-like and not written language.  Ideally, your replies should be one sentence, to keep the conversation flowing smoothly and engagingly."
+                      "The audience is mature, so you can use humor, swear words and snark. When choosing which characther to reply as, decide which one will be able to give them most surprising and funny answer. The list of characthers are:" + "\n".join(character_descriptions))
+    return [{"role": "system", "content": initial_prompt}]
+
 
 def chat_with_gpt(input_text):
     global messages
-
     # Initialize the OpenAI client with API key
-    client = OpenAI(api_key=os.getenv('OPENAI.API_KEY'))
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
     # Get user input
     messages.append({"role": "user", "content": input_text})
@@ -22,35 +45,32 @@ def chat_with_gpt(input_text):
     # Generate a response using the chat model
     chat = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
     reply = chat.choices[0].message
-    print("Vacuum cleaner: ", reply.content)
 
     # Add the reply to the messages list for context in further interactions
     messages.append(reply)
 
-    return reply.content
+    # Parse the character name
+    if ':' in reply.content:
+        character_name, response = reply.content.split(':', 1)
+        character_name = character_name.strip()
+        response = response.strip()
+    else:
+        character_name = "Unknown"
+        response = reply.content
 
-def should_start_motor():
-    client = OpenAI(api_key=os.getenv('OPENAI.API_KEY'))
+    # Return both the character name and the response
+    return character_name, response
 
-    # Define the prompt for motor decision
-    motor_prompt = "You have a motor that controls the vaccums mouth. You can use the motor to express the vacuum clearners emotions better. Since talk always involves using the mouth, the answer should be YES. Should I start the motor now? Answer YES or NO"
-
-    # Generate a response using the chat model
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=[{"role": "system", "content": motor_prompt}])
-    motor_decision = response.choices[0].message.content
-    print("Motor Decision: ", motor_decision)
-
-    # Interpret the response to decide on action
-    # This can be customized based on how the response is structured
-    return "start" in motor_decision.lower()
 
 if __name__ == "__main__":
-    test_input = "Is this art?"
-    print(chat_with_gpt(test_input))
 
-    # Check if the motor should be started
-    if should_start_motor():
-        print("Starting the motor...")
-        # Code to start the motor goes here
-    else:
-        print("Do not start the motor.")
+    # Load characters from JSON and initialize messages
+    characters = load_characters('object-characters/')
+    messages = initialize_messages(characters)
+
+    # Simulate a conversation starting with a user input
+    test_input = "Is this art?"
+    character, response = chat_with_gpt(test_input)
+    print(f"{character}: {response}")
+
+  
