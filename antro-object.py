@@ -117,17 +117,18 @@ class ServerProcessor:
         # Therefore, beg, is max of previous end and current beg outputed by Whisper.
         # Usually it differs negligibly, by appx 20 ms.
 
-        if o[0] is not None:
-            beg, end = o[0]*1000,o[1]*1000
-            if self.last_end is not None:
-                beg = max(beg, self.last_end)
-
-            self.last_end = end
-            print("%1.0f %1.0f %s" % (beg,end,o[2]),flush=True,file=sys.stderr)
-            return "%1.0f %1.0f %s" % (beg,end,o[2])
-        else:
-            logger.debug("No text in this segment")
-            return None
+        def format_output_transcript(self, o):
+            if o[0] is not None:
+                beg, end = o[0] * 1000, o[1] * 1000
+                if self.last_end is not None:
+                    beg = max(beg, self.last_end)
+                self.last_end = end
+                transcription = "%1.0f %1.0f %s" % (beg, end, o[2])
+                print(transcription, flush=True, file=sys.stderr)
+                return transcription
+            else:
+                logger.debug("No text in this segment")
+                return None
 
     def send_result(self, o):
         msg = self.format_output_transcript(o)
@@ -136,7 +137,7 @@ class ServerProcessor:
 
     def process(self):
         self.online_asr_proc.init()
-        transcription_results = []
+        transcription_results = []  # Collect all transcriptions
         while True:
             a = self.receive_audio_chunk()
             if a is None:
