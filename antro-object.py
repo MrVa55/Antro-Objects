@@ -146,9 +146,9 @@ class ServerProcessor:
                 o = self.online_asr_proc.process_iter()
                 if o is None:
                     break
-                transcription_results.append(o)
-                # Comment out or remove this line:
-                # self.send_result(o)
+                msg = self.format_output_transcript(o)
+                if msg is not None:
+                    transcription_results.append(msg)
         return transcription_results
 
 
