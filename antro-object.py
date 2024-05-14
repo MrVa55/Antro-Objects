@@ -137,25 +137,28 @@ class ServerProcessor:
         if msg is not None:
             self.connection.send(msg)
 
-   def process(self):
-    self.online_asr_proc.init()
-    transcription_results = []  # Collects all transcriptions
-    while True:
-        audio_chunk = self.receive_audio_chunk()
-        if audio_chunk is None:
-            break
-        self.online_asr_proc.insert_audio_chunk(audio_chunk)
-        while True:
-            o = self.online_asr_proc.process_iter()
-            if o is None:
-                break
-            formatted_transcript = self.format_output_transcript(o)
-            if formatted_transcript:
-                transcription_results.append(formatted_transcript)
-                return " ".join(transcription_results)  # Combine all valid transcriptions
-    except BrokenPipeError:
-        logger.info("broken pipe -- connection closed?")
-        break
+    def process(self):
+        self.online_asr_proc.init()
+        transcription_results = []  # Collects all transcriptions
+        try:
+            while True:
+                audio_chunk = self.receive_audio_chunk()
+                if audio_chunk is None:
+                    break  # Exit if no more audio is available
+                self.online_asr_proc.insert_audio_chunk(audio_chunk)
+                while True:
+                    o = self.online_asr_proc.process_iter()
+                    if o is None:
+                        break  # Break if no more data to process at this time
+                    formatted_transcript = self.format_output_transcript(o)
+                    if formatted_transcript:
+                        transcription_results.append(formatted_transcript)
+            return " ".join(transcription_results)  # Combine all valid transcriptions
+        except BrokenPipeError:
+            logger.info("broken pipe -- connection closed?")
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
+        return None
 
 
 # server loop
