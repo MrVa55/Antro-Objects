@@ -135,19 +135,21 @@ class ServerProcessor:
             self.connection.send(msg)
 
     def process(self):
-        # handle one client connection
         self.online_asr_proc.init()
+        transcription_results = []
         while True:
             a = self.receive_audio_chunk()
             if a is None:
                 break
             self.online_asr_proc.insert_audio_chunk(a)
-            o = online.process_iter()
-            try:
-                self.send_result(o)
-            except BrokenPipeError:
-                logger.info("broken pipe -- connection closed?")
-                break
+            while True:
+                o = self.online_asr_proc.process_iter()
+                if o is None:
+                    break
+                transcription_results.append(o)
+                # Comment out or remove this line:
+                # self.send_result(o)
+        return transcription_results
 
 
 # server loop
@@ -162,7 +164,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         logger.info('Connected to client on {}'.format(addr))
         connection = Connection(conn)
         proc = ServerProcessor(connection, online, min_chunk)
-        proc.process()
+        transcription = proc.process()
+        for transcription in transcriptions:
+            print(transcription)
         conn.close()
         logger.info('Connection to client closed')
 logger.info('Connection closed, terminating.')
